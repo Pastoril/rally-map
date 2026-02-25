@@ -331,6 +331,9 @@
 const CONFIG = {
   CLIENT_ID: '437673542263-s2kl4cvmfeip7hf1tg69m3n4v54f1cu6.apps.googleusercontent.com',
   FILENAME: 'rally-map-layout.json',
+  // Hardcoded Drive file ID — everyone accesses this exact file regardless of account.
+  // To find this: open the file in Drive and copy the ID from the URL between /d/ and /view
+  FILE_ID: '1xhklSyZr_Sz20NG-LCyUGgkZIjdNdz6f',
   FOLDER_ID: null,
   ADMINS: [
     'tom@dollmeyer.com'
@@ -448,13 +451,20 @@ async function fetchUserInfo() {
 
 // ── DRIVE INIT ──
 async function initDrive() {
-  const q = encodeURIComponent(`name='${CONFIG.FILENAME}' and trashed=false`);
-  const r = await driveGet(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name)`);
-  if (r.files && r.files.length > 0) {
-    driveFileId = r.files[0].id;
+  if (CONFIG.FILE_ID) {
+    // Use hardcoded file ID directly — no search needed
+    driveFileId = CONFIG.FILE_ID;
     await loadFromDrive();
   } else {
-    await saveMapData({ version: 2, lock: { state: 'free', owner: null, time: null }, markers: [] });
+    // Fallback: search by filename (admin first-run before FILE_ID is set)
+    const q = encodeURIComponent(`name='${CONFIG.FILENAME}' and trashed=false`);
+    const r = await driveGet(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name)`);
+    if (r.files && r.files.length > 0) {
+      driveFileId = r.files[0].id;
+      await loadFromDrive();
+    } else {
+      await saveMapData({ version: 2, lock: { state: 'free', owner: null, time: null }, markers: [] });
+    }
   }
   updateUI();
 }
