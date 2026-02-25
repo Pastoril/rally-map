@@ -337,7 +337,7 @@ const CONFIG = {
     // 'teammate@gmail.com',
   ],
   IDLE_TIMEOUT_MINUTES: 15,
-  POLL_INTERVAL_SECONDS: 20
+  POLL_INTERVAL_SECONDS: 5
 };
 // ══════════════════════════════════════════════
 
@@ -540,6 +540,15 @@ function currentMapPayload(lockOverride) {
 async function claimLock() {
   if (lockState !== 'free') return;
   if (!driveLoaded) { alert('Still loading map data from Drive — please wait a moment and try again.'); return; }
+
+  // Do a fresh read from Drive immediately before claiming,
+  // to catch any lock claimed by another user since the last poll
+  await loadFromDrive();
+  if (lockState !== 'free') {
+    alert('Someone just claimed the edit lock. Please wait until they are done.');
+    return;
+  }
+
   lockState = 'soft'; lockOwner = currentUser.email; lockTime = new Date().toISOString();
   iAmEditing = true;
   pendingMarkers = markers.map(m => ({
