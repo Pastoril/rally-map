@@ -19,7 +19,6 @@
     overflow: hidden;
   }
 
-  /* ── HEADER ── */
   #header {
     background: #0f1320;
     border-bottom: 1px solid #2e3450;
@@ -56,13 +55,13 @@
   .btn:hover { opacity: 0.85; transform: translateY(-1px); }
   .btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
 
-  .btn-signin   { background: #1a3a7a; border-color: #4472ca; color: #e8eaf0; }
-  .btn-edit     { background: #1a5c2a; border-color: #2dc653; color: #e8eaf0; }
-  .btn-done     { background: #1a3a7a; border-color: #4472ca; color: #e8eaf0; }
-  .btn-discard  { background: #5a3000; border-color: #f4a261; color: #f4a261; }
-  .btn-finalize { background: #5a0000; border-color: #e63946; color: #e8eaf0; }
+  .btn-signin     { background: #1a3a7a; border-color: #4472ca; color: #e8eaf0; }
+  .btn-edit       { background: #1a5c2a; border-color: #2dc653; color: #e8eaf0; }
+  .btn-done       { background: #1a3a7a; border-color: #4472ca; color: #e8eaf0; }
+  .btn-discard    { background: #5a3000; border-color: #f4a261; color: #f4a261; }
+  .btn-finalize   { background: #5a0000; border-color: #e63946; color: #e8eaf0; }
   .btn-unfinalize { background: #3a2000; border-color: #ffd166; color: #ffd166; }
-  .btn-takeover { background: #4a1a00; border-color: #f4a261; color: #f4a261; }
+  .btn-takeover   { background: #4a1a00; border-color: #f4a261; color: #f4a261; }
 
   #lock-badge {
     font-family: 'Share Tech Mono', monospace;
@@ -84,10 +83,8 @@
     white-space: nowrap;
   }
 
-  /* ── MAIN ── */
   #main { display: flex; flex: 1; overflow: hidden; }
 
-  /* ── SIDEBAR ── */
   #sidebar {
     width: 190px;
     min-width: 190px;
@@ -137,11 +134,9 @@
     margin-top: auto;
   }
 
-  /* ── MAP ── */
   #map { flex: 1; z-index: 100; }
   #map.drag-over { outline: 3px dashed #7ec8e3; outline-offset: -3px; }
 
-  /* ── DRAG GHOST ── */
   #drag-ghost {
     position: fixed;
     pointer-events: none;
@@ -151,7 +146,6 @@
   }
   #drag-ghost svg { width: 44px; height: 44px; opacity: 0.85; }
 
-  /* ── TOUCH PLACEMENT MODE ── */
   #touch-mode-banner {
     display: none;
     position: fixed;
@@ -179,7 +173,6 @@
     cursor: pointer;
   }
 
-  /* ── OVERLAY BANNERS ── */
   #finalized-banner {
     display: none;
     position: absolute;
@@ -198,7 +191,6 @@
   }
   #finalized-banner.show { display: block; }
 
-  /* ── POPUPS ── */
   .leaflet-popup-content-wrapper {
     background: #1a1f2e !important;
     border: 1px solid #4472ca !important;
@@ -235,7 +227,6 @@
   .mpop-save   { background: #1a5c2a; border-color: #2dc653; color: white; }
   .mpop-delete { background: #5a0000; border-color: #e63946; color: white; }
 
-  /* ── TOOLTIP ── */
   .mtip {
     background: rgba(15,19,32,0.92) !important;
     border: 1px solid #4472ca !important;
@@ -256,24 +247,23 @@
 </head>
 <body>
 
-<!-- ── HEADER ── -->
 <div id="header">
   <h1>📍 Rally Map — Montgomery Park</h1>
   <span id="user-badge">Not signed in</span>
   <span id="lock-badge" class="badge-free">● FREE</span>
   <div class="header-spacer"></div>
-  <button class="btn btn-signin"   id="btn-signin"    onclick="signIn()">Sign In</button>
-  <button class="btn btn-edit"     id="btn-edit"      onclick="claimLock()" style="display:none">✏️ Edit</button>
-  <button class="btn btn-takeover" id="btn-takeover"  onclick="takeOver()" style="display:none">⚡ Take Over</button>
-  <button class="btn btn-discard"  id="btn-discard"   onclick="discardChanges()" style="display:none">↩ Discard</button>
-  <button class="btn btn-done"     id="btn-done"      onclick="saveAndRelease()" style="display:none">✔ Done Editing</button>
-  <button class="btn btn-finalize" id="btn-finalize"  onclick="adminFinalize()" style="display:none">🔒 Finalize</button>
+  <button class="btn btn-signin"     id="btn-signin"    onclick="signIn()">Sign In</button>
+  <button class="btn btn-edit"       id="btn-edit"      onclick="claimLock()" style="display:none">✏️ Edit</button>
+  <button class="btn btn-takeover"   id="btn-takeover"  onclick="takeOver()" style="display:none">⚡ Take Over</button>
+  <button class="btn btn-discard"    id="btn-discard"   onclick="discardChanges()" style="display:none">↩ Discard</button>
+  <button class="btn btn-done"       id="btn-done"      onclick="saveAndRelease()" style="display:none">✔ Done Editing</button>
+  <button class="btn btn-finalize"   id="btn-finalize"  onclick="adminFinalize()" style="display:none">🔒 Finalize</button>
   <button class="btn btn-unfinalize" id="btn-unfinalize" onclick="adminUnfinalize()" style="display:none">🔓 Unfinalize</button>
 </div>
 
-<!-- ── MAIN ── -->
 <div id="main">
   <div id="sidebar">
+
     <div class="sb-section">Medical</div>
     <div class="sym" data-type="main-medical"><svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><polygon points="32,4 60,36 4,36" fill="#e63946" stroke="#ff6b6b" stroke-width="1.5"/><rect x="10" y="36" width="44" height="18" rx="1" fill="#c1121f" stroke="#e63946" stroke-width="1"/><rect x="28" y="10" width="8" height="22" rx="2" fill="white"/><rect x="22" y="16" width="20" height="8" rx="2" fill="white"/><rect x="27" y="44" width="10" height="10" rx="1" fill="#ff6b6b"/></svg><span>Main Medical Tent</span></div>
     <div class="sym" data-type="remote-medical"><svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><polygon points="32,10 54,36 10,36" fill="#f4a261" stroke="#ffb347" stroke-width="1.5"/><rect x="14" y="36" width="36" height="16" rx="1" fill="#e07b39" stroke="#f4a261" stroke-width="1"/><rect x="29" y="16" width="6" height="16" rx="1.5" fill="white"/><rect x="24" y="21" width="16" height="6" rx="1.5" fill="white"/><rect x="27" y="43" width="10" height="9" rx="1" fill="#ffb347"/></svg><span>Remote Medical</span></div>
@@ -294,10 +284,23 @@
     <div class="sym" data-type="dumpster"><svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><rect x="6" y="28" width="52" height="26" rx="2" fill="#495057" stroke="#adb5bd" stroke-width="2"/><rect x="6" y="18" width="24" height="12" rx="2" fill="#6c757d" stroke="#adb5bd" stroke-width="1.5" transform="rotate(-15 18 24)"/><rect x="34" y="18" width="24" height="12" rx="2" fill="#6c757d" stroke="#adb5bd" stroke-width="1.5" transform="rotate(15 46 24)"/><circle cx="16" cy="56" r="4" fill="#343a40" stroke="#adb5bd" stroke-width="1.5"/><circle cx="48" cy="56" r="4" fill="#343a40" stroke="#adb5bd" stroke-width="1.5"/><line x1="20" y1="28" x2="20" y2="54" stroke="#adb5bd" stroke-width="1" opacity="0.4"/><line x1="32" y1="28" x2="32" y2="54" stroke="#adb5bd" stroke-width="1" opacity="0.4"/><line x1="44" y1="28" x2="44" y2="54" stroke="#adb5bd" stroke-width="1" opacity="0.4"/></svg><span>Dumpster</span></div>
     <div class="sym" data-type="porta-potty"><svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><rect x="16" y="18" width="32" height="38" rx="3" fill="#1a4f6e" stroke="#74b3ce" stroke-width="2"/><rect x="15" y="14" width="34" height="8" rx="4" fill="#2171a0" stroke="#74b3ce" stroke-width="1.5"/><rect x="27" y="10" width="10" height="6" rx="2" fill="#2171a0" stroke="#74b3ce" stroke-width="1"/><rect x="20" y="30" width="24" height="24" rx="2" fill="#1a4f6e" stroke="#74b3ce" stroke-width="1" opacity="0.8"/><circle cx="38" cy="43" r="2" fill="#74b3ce"/><rect x="24" y="22" width="16" height="7" rx="2" fill="#4cc9f0" opacity="0.3" stroke="#74b3ce" stroke-width="0.5"/></svg><span>Porta Potty</span></div>
 
+    <div class="sb-section">Parking &amp; Access</div>
+    <div class="sym" data-type="hc-parking"><svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="60" height="60" rx="6" fill="#005fcc"/><circle cx="38" cy="10" r="4.5" fill="white"/><line x1="38" y1="14" x2="36" y2="24" stroke="white" stroke-width="3" stroke-linecap="round"/><line x1="37" y1="18" x2="46" y2="22" stroke="white" stroke-width="2.5" stroke-linecap="round"/><line x1="26" y1="28" x2="40" y2="28" stroke="white" stroke-width="3" stroke-linecap="round"/><line x1="36" y1="24" x2="36" y2="28" stroke="white" stroke-width="3" stroke-linecap="round"/><line x1="26" y1="28" x2="24" y2="38" stroke="white" stroke-width="3" stroke-linecap="round"/><line x1="24" y1="38" x2="32" y2="40" stroke="white" stroke-width="3" stroke-linecap="round"/><circle cx="42" cy="44" r="14" fill="none" stroke="white" stroke-width="3"/><circle cx="42" cy="44" r="2.5" fill="white"/><circle cx="24" cy="46" r="5" fill="none" stroke="white" stroke-width="2.5"/></svg><span>Handicapped Parking</span></div>
+    <div class="sym" data-type="no-parking"><svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><defs><clipPath id="cc"><circle cx="32" cy="32" r="26"/></clipPath></defs><circle cx="32" cy="32" r="27" fill="white"/><rect x="18" y="14" width="7" height="36" rx="2" fill="#005fcc"/><path d="M25 14 L25 32 Q42 32 42 23 Q42 14 25 14 Z" fill="#005fcc"/><path d="M25 18 L25 28 Q36 28 36 23 Q36 18 25 18 Z" fill="white"/><line x1="8" y1="56" x2="56" y2="8" stroke="#e63946" stroke-width="7" stroke-linecap="round" clip-path="url(#cc)"/><circle cx="32" cy="32" r="27" fill="none" stroke="#e63946" stroke-width="5"/></svg><span>No Parking</span></div>
+    <div class="sym" data-type="bike-valet"><svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><circle cx="32" cy="32" r="28" fill="#1a3a1a"/><circle cx="32" cy="32" r="28" fill="none" stroke="#2dc653" stroke-width="2"/><circle cx="20" cy="42" r="8" fill="none" stroke="#2dc653" stroke-width="2.5"/><circle cx="44" cy="42" r="8" fill="none" stroke="#2dc653" stroke-width="2.5"/><line x1="20" y1="42" x2="32" y2="24" stroke="#2dc653" stroke-width="2.5" stroke-linecap="round"/><line x1="32" y1="24" x2="44" y2="42" stroke="#2dc653" stroke-width="2.5" stroke-linecap="round"/><line x1="30" y1="24" x2="28" y2="18" stroke="#2dc653" stroke-width="2.5" stroke-linecap="round"/><line x1="25" y1="18" x2="31" y2="18" stroke="#2dc653" stroke-width="2.5" stroke-linecap="round"/><line x1="44" y1="30" x2="44" y2="24" stroke="#2dc653" stroke-width="2.5" stroke-linecap="round"/><line x1="41" y1="24" x2="47" y2="24" stroke="#2dc653" stroke-width="2.5" stroke-linecap="round"/><text x="32" y="58" text-anchor="middle" fill="#2dc653" font-size="7" font-weight="bold" font-family="Arial" letter-spacing="1">VALET</text></svg><span>Bike Valet</span></div>
+
+    <div class="sb-section">Closures</div>
+    <div class="sym" data-type="closure"><svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><rect x="12" y="54" width="40" height="6" rx="3" fill="#c1121f"/><path d="M32 6 L50 54 L14 54 Z" fill="#e63946"/><path d="M23 30 L41 30 L43 37 L21 37 Z" fill="white" opacity="0.9"/><path d="M27 46 L37 46 L38 51 L26 51 Z" fill="white" opacity="0.9"/><path d="M32 8 L35 18 L33 18 L31 10 Z" fill="white" opacity="0.2"/></svg><span>Closure / Cone</span></div>
+
     <div class="sb-section">Vehicles</div>
     <div class="sym vehicle" data-type="gen-trailer"><svg viewBox="0 0 96 64" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="14" width="68" height="32" rx="3" fill="#495057" stroke="#e9c46a" stroke-width="2"/><rect x="16" y="18" width="42" height="24" rx="2" fill="#343a40" stroke="#e9c46a" stroke-width="1.5"/><rect x="50" y="10" width="5" height="10" rx="2" fill="#e9c46a"/><polygon points="32,22 28,30 33,30 29,38 37,28 32,28 36,22" fill="#e9c46a"/><rect x="62" y="20" width="12" height="18" rx="1" fill="#2b2d42" stroke="#e9c46a" stroke-width="1"/><circle cx="65" cy="25" r="2" fill="#e9c46a" opacity="0.8"/><circle cx="71" cy="25" r="2" fill="#e9c46a" opacity="0.4"/><circle cx="24" cy="48" r="6" fill="#212529" stroke="#6c757d" stroke-width="2"/><circle cx="72" cy="48" r="6" fill="#212529" stroke="#6c757d" stroke-width="2"/><rect x="78" y="28" width="12" height="4" rx="2" fill="#6c757d"/><circle cx="91" cy="30" r="3" fill="#343a40" stroke="#6c757d" stroke-width="1.5"/></svg><span>Generator Trailer</span></div>
     <div class="sym vehicle" data-type="supply-trailer"><svg viewBox="0 0 96 64" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="12" width="68" height="36" rx="3" fill="#2d6a4f" stroke="#95d5b2" stroke-width="2"/><line x1="14" y1="18" x2="74" y2="18" stroke="#95d5b2" stroke-width="0.8" opacity="0.5"/><line x1="14" y1="23" x2="74" y2="23" stroke="#95d5b2" stroke-width="0.8" opacity="0.5"/><line x1="14" y1="28" x2="74" y2="28" stroke="#95d5b2" stroke-width="0.8" opacity="0.5"/><line x1="14" y1="33" x2="74" y2="33" stroke="#95d5b2" stroke-width="0.8" opacity="0.5"/><line x1="14" y1="38" x2="74" y2="38" stroke="#95d5b2" stroke-width="0.8" opacity="0.5"/><rect x="39" y="40" width="10" height="3" rx="1.5" fill="#95d5b2"/><circle cx="24" cy="50" r="6" fill="#212529" stroke="#6c757d" stroke-width="2"/><circle cx="72" cy="50" r="6" fill="#212529" stroke="#6c757d" stroke-width="2"/><rect x="78" y="28" width="12" height="4" rx="2" fill="#6c757d"/><circle cx="91" cy="30" r="3" fill="#343a40" stroke="#6c757d" stroke-width="1.5"/><text x="44" y="32" text-anchor="middle" fill="#95d5b2" font-size="8" font-weight="bold" font-family="Arial">SUPPLY</text></svg><span>Supply Trailer</span></div>
     <div class="sym vehicle" data-type="ambulance"><svg viewBox="0 0 96 64" xmlns="http://www.w3.org/2000/svg"><rect x="8" y="16" width="72" height="30" rx="3" fill="white" stroke="#e63946" stroke-width="2"/><rect x="68" y="20" width="14" height="22" rx="3" fill="#f1f1f1" stroke="#e63946" stroke-width="1.5"/><rect x="70" y="22" width="10" height="10" rx="2" fill="#a8dadc" opacity="0.7"/><rect x="8" y="30" width="72" height="6" fill="#e63946"/><rect x="26" y="18" width="6" height="18" rx="1" fill="#e63946"/><rect x="20" y="24" width="18" height="6" rx="1" fill="#e63946"/><circle cx="22" cy="48" r="7" fill="#212529" stroke="#6c757d" stroke-width="2"/><circle cx="22" cy="48" r="3" fill="#6c757d"/><circle cx="68" cy="48" r="7" fill="#212529" stroke="#6c757d" stroke-width="2"/><circle cx="68" cy="48" r="3" fill="#6c757d"/><rect x="50" y="14" width="24" height="4" rx="2" fill="#e63946" stroke="#ff6b6b" stroke-width="0.5"/><rect x="52" y="14" width="6" height="4" rx="1" fill="#4cc9f0" opacity="0.8"/><rect x="61" y="14" width="6" height="4" rx="1" fill="#e63946" opacity="0.9"/></svg><span>Ambulance</span></div>
+    <div class="sym vehicle" data-type="support-truck"><svg viewBox="0 0 96 64" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="92" height="60" rx="3" fill="none" stroke="#3a4060" stroke-width="1" stroke-dasharray="4,3"/><rect x="8" y="18" width="38" height="26" rx="2" fill="#3d5a80" stroke="#7ec8e3" stroke-width="1.5"/><rect x="11" y="21" width="32" height="20" rx="1" fill="#2a3f5a"/><rect x="46" y="20" width="30" height="24" rx="3" fill="#3d5a80" stroke="#7ec8e3" stroke-width="1.5"/><rect x="48" y="16" width="24" height="8" rx="4" fill="#4a6fa5" stroke="#7ec8e3" stroke-width="1"/><rect x="60" y="22" width="14" height="10" rx="2" fill="#a8dadc" opacity="0.6"/><rect x="48" y="22" width="10" height="8" rx="1" fill="#a8dadc" opacity="0.4"/><line x1="60" y1="20" x2="60" y2="44" stroke="#7ec8e3" stroke-width="0.8" opacity="0.5"/><rect x="44" y="18" width="4" height="26" rx="1" fill="#2a3f5a"/><circle cx="20" cy="46" r="7" fill="#212529" stroke="#6c757d" stroke-width="2"/><circle cx="20" cy="46" r="3" fill="#6c757d"/><circle cx="64" cy="46" r="7" fill="#212529" stroke="#6c757d" stroke-width="2"/><circle cx="64" cy="46" r="3" fill="#6c757d"/><rect x="76" y="28" width="8" height="8" rx="2" fill="#3d5a80" stroke="#7ec8e3" stroke-width="1"/><rect x="8" y="22" width="4" height="6" rx="1" fill="#e63946" opacity="0.8"/><rect x="8" y="32" width="4" height="6" rx="1" fill="#ffd166" opacity="0.8"/><text x="27" y="34" text-anchor="middle" fill="#7ec8e3" font-size="7" font-weight="bold" font-family="Arial">SUPPORT</text></svg><span>Support Vehicle</span></div>
+
+    <div class="sb-section">People</div>
+    <div class="sym" data-type="peacekeeper"><svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><circle cx="32" cy="32" r="28" fill="#1a3a1a"/><circle cx="32" cy="32" r="28" fill="none" stroke="#2dc653" stroke-width="2.5"/><circle cx="32" cy="14" r="7" fill="#2dc653"/><path d="M20 24 Q32 20 44 24 L46 46 L34 46 L34 34 L30 34 L30 46 L18 46 Z" fill="#2dc653" stroke="#5ae87e" stroke-width="1"/><rect x="20" y="33" width="24" height="3" rx="1" fill="#ffd166" opacity="0.9"/><line x1="20" y1="26" x2="12" y2="38" stroke="#2dc653" stroke-width="4" stroke-linecap="round"/><line x1="44" y1="26" x2="52" y2="38" stroke="#2dc653" stroke-width="4" stroke-linecap="round"/><line x1="26" y1="46" x2="24" y2="58" stroke="#2dc653" stroke-width="4" stroke-linecap="round"/><line x1="38" y1="46" x2="40" y2="58" stroke="#2dc653" stroke-width="4" stroke-linecap="round"/><text x="32" y="32" text-anchor="middle" fill="white" font-size="7" font-weight="bold" font-family="Arial">PK</text></svg><span>Peacekeeper</span></div>
+    <div class="sym" data-type="bike-rider"><svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><circle cx="32" cy="32" r="28" fill="#1a2a3a"/><circle cx="32" cy="32" r="28" fill="none" stroke="#4895ef" stroke-width="2.5"/><circle cx="32" cy="11" r="6" fill="#4895ef"/><path d="M26 11 Q26 5 32 5 Q38 5 38 11" fill="#3a86ff" stroke="#4895ef" stroke-width="1"/><path d="M28 18 Q32 16 36 18 L38 30 L26 30 Z" fill="#4895ef"/><rect x="27" y="23" width="11" height="2.5" rx="1" fill="#ffd166" opacity="0.9"/><line x1="36" y1="20" x2="46" y2="28" stroke="#4895ef" stroke-width="3.5" stroke-linecap="round"/><line x1="28" y1="20" x2="18" y2="28" stroke="#4895ef" stroke-width="3.5" stroke-linecap="round"/><circle cx="18" cy="46" r="10" fill="none" stroke="#4895ef" stroke-width="2.5"/><circle cx="46" cy="46" r="10" fill="none" stroke="#4895ef" stroke-width="2.5"/><circle cx="18" cy="46" r="2" fill="#4895ef"/><circle cx="46" cy="46" r="2" fill="#4895ef"/><line x1="28" y1="30" x2="18" y2="46" stroke="#4895ef" stroke-width="2" stroke-linecap="round"/><line x1="32" y1="30" x2="46" y2="46" stroke="#4895ef" stroke-width="2" stroke-linecap="round"/><line x1="44" y1="28" x2="50" y2="26" stroke="#4895ef" stroke-width="2" stroke-linecap="round"/><line x1="44" y1="28" x2="50" y2="30" stroke="#4895ef" stroke-width="2" stroke-linecap="round"/></svg><span>Bike Support Rider</span></div>
 
     <div class="sb-section">Custom</div>
     <div class="sym" data-type="generic"><svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><path d="M32 4 C20 4 12 13 12 23 C12 38 32 58 32 58 C32 58 52 38 52 23 C52 13 44 4 32 4 Z" fill="#9b5de5" stroke="#c77dff" stroke-width="1.5"/><circle cx="32" cy="23" r="11" fill="#1a1f2e" opacity="0.6"/><circle cx="32" cy="23" r="11" fill="none" stroke="#c77dff" stroke-width="1"/><text x="32" y="29" text-anchor="middle" fill="#c77dff" font-size="16" font-weight="bold" font-family="Arial">?</text></svg><span>Generic / Custom</span></div>
@@ -317,9 +320,7 @@
 
 <div id="drag-ghost"><svg id="ghost-svg" viewBox="0 0 64 64"></svg></div>
 
-<!-- Google Identity Services -->
 <script src="https://accounts.google.com/gsi/client" async defer></script>
-<!-- Google API client -->
 <script src="https://apis.google.com/js/api.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
@@ -328,35 +329,18 @@
 //  !! CONFIGURATION — EDIT THESE VALUES !!
 // ══════════════════════════════════════════════
 const CONFIG = {
-  // Your Google Cloud OAuth Client ID (web application type)
   CLIENT_ID: '437673542263-s2kl4cvmfeip7hf1tg69m3n4v54f1cu6.apps.googleusercontent.com',
-
-  // The name of the JSON file that will be created in the user's
-  // Google Drive root folder (or specify a folder ID below)
   FILENAME: 'rally-map-layout.json',
-
-  // Google Drive folder ID to store the file in.
-  // Leave as null to use Drive root. To use a specific folder,
-  // paste the folder ID from the Drive URL here.
   FOLDER_ID: null,
-
-  // Gmail addresses of admins who can set/clear the hard lock.
-  // Add everyone who should have admin finalize rights.
   ADMINS: [
     'tom@dollmeyer.com'
     // 'teammate@gmail.com',
   ],
-
-  // Soft lock idle timeout in minutes.
-  // If the editor hasn't saved in this many minutes, lock auto-releases.
   IDLE_TIMEOUT_MINUTES: 15,
-
-  // How often (seconds) to poll Drive for lock/map updates when viewing
   POLL_INTERVAL_SECONDS: 20
 };
 // ══════════════════════════════════════════════
 
-// ── MAP INIT ──
 const map = L.map('map', { center: [35.1253, -106.5831], zoom: 17 });
 
 L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
@@ -381,9 +365,16 @@ const SVG = {
   'trash-bin':      document.querySelector('[data-type="trash-bin"] svg').outerHTML,
   'dumpster':       document.querySelector('[data-type="dumpster"] svg').outerHTML,
   'porta-potty':    document.querySelector('[data-type="porta-potty"] svg').outerHTML,
+  'hc-parking':     document.querySelector('[data-type="hc-parking"] svg').outerHTML,
+  'no-parking':     document.querySelector('[data-type="no-parking"] svg').outerHTML,
+  'bike-valet':     document.querySelector('[data-type="bike-valet"] svg').outerHTML,
+  'closure':        document.querySelector('[data-type="closure"] svg').outerHTML,
   'gen-trailer':    document.querySelector('[data-type="gen-trailer"] svg').outerHTML,
   'supply-trailer': document.querySelector('[data-type="supply-trailer"] svg').outerHTML,
   'ambulance':      document.querySelector('[data-type="ambulance"] svg').outerHTML,
+  'support-truck':  document.querySelector('[data-type="support-truck"] svg').outerHTML,
+  'peacekeeper':    document.querySelector('[data-type="peacekeeper"] svg').outerHTML,
+  'bike-rider':     document.querySelector('[data-type="bike-rider"] svg').outerHTML,
   'generic':        document.querySelector('[data-type="generic"] svg').outerHTML
 };
 
@@ -393,25 +384,31 @@ const LABEL_DEFAULTS = {
   'lit-table':'Literature Table','lost-child':'Lost Child / Reunite',
   'power-panel':'Remote Power Panel','internet':'Internet (Starlink)',
   'trash-bin':'Trash Bin','dumpster':'Dumpster','porta-potty':'Porta Potty',
+  'hc-parking':'Handicapped Parking','no-parking':'No Parking',
+  'bike-valet':'Bike Valet','closure':'Closure / Cone',
   'gen-trailer':'Generator Trailer','supply-trailer':'Supply Trailer',
-  'ambulance':'Ambulance','generic':'Custom Marker'
+  'ambulance':'Ambulance','support-truck':'Support Vehicle',
+  'peacekeeper':'Peacekeeper','bike-rider':'Bike Support Rider',
+  'generic':'Custom Marker'
 };
 
+const VEHICLE_TYPES = ['gen-trailer','supply-trailer','ambulance','support-truck'];
+
 // ── STATE ──
-let currentUser   = null;   // { email, name }
-let isAdmin       = false;
-let lockState     = 'free'; // 'free' | 'soft' | 'hard'
-let lockOwner     = null;   // email of soft-lock holder
-let lockTime      = null;   // ISO timestamp
-let iAmEditing    = false;
-let driveFileId   = null;
-let markers       = [];
-let pendingMarkers = [];    // snapshot at edit-start for discard
-let pollTimer     = null;
-let idleTimer     = null;
-let draggingType  = null;
+let currentUser    = null;
+let isAdmin        = false;
+let lockState      = 'free';
+let lockOwner      = null;
+let lockTime       = null;
+let iAmEditing     = false;
+let driveFileId    = null;
+let markers        = [];
+let pendingMarkers = [];
+let pollTimer      = null;
+let idleTimer      = null;
+let draggingType   = null;
 let touchPlaceType = null;
-let accessToken   = null;
+let accessToken    = null;
 
 // ── GOOGLE AUTH ──
 function signIn() {
@@ -447,20 +444,17 @@ async function fetchUserInfo() {
 
 // ── DRIVE INIT ──
 async function initDrive() {
-  // Search for existing file
   const q = encodeURIComponent(`name='${CONFIG.FILENAME}' and trashed=false`);
   const r = await driveGet(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name)`);
   if (r.files && r.files.length > 0) {
     driveFileId = r.files[0].id;
     await loadFromDrive();
   } else {
-    // Create initial file
     await saveMapData({ version: 2, lock: { state: 'free', owner: null, time: null }, markers: [] });
   }
   updateUI();
 }
 
-// ── DRIVE HELPERS ──
 async function driveGet(url) {
   const r = await fetch(url, { headers: { Authorization: 'Bearer ' + accessToken } });
   return r.json();
@@ -478,12 +472,9 @@ async function loadFromDrive() {
 }
 
 function applyMapData(data) {
-  // Update lock state
   lockState = (data.lock && data.lock.state) || 'free';
   lockOwner = (data.lock && data.lock.owner) || null;
   lockTime  = (data.lock && data.lock.time)  || null;
-
-  // Only redraw markers if not currently editing (avoid clobbering in-progress work)
   if (!iAmEditing) {
     clearMarkerLayer();
     (data.markers || []).forEach(m => placeMarker(m.type, [m.lat, m.lng], m.label, false));
@@ -494,7 +485,6 @@ function applyMapData(data) {
 async function saveMapData(data) {
   const body = JSON.stringify(data, null, 2);
   if (!driveFileId) {
-    // Create
     const meta = { name: CONFIG.FILENAME, mimeType: 'application/json' };
     if (CONFIG.FOLDER_ID) meta.parents = [CONFIG.FOLDER_ID];
     const form = new FormData();
@@ -508,7 +498,6 @@ async function saveMapData(data) {
     const result = await r.json();
     driveFileId = result.id;
   } else {
-    // Update
     await fetch(`https://www.googleapis.com/upload/drive/v3/files/${driveFileId}?uploadType=media`, {
       method: 'PATCH',
       headers: { Authorization: 'Bearer ' + accessToken, 'Content-Type': 'application/json' },
@@ -534,7 +523,6 @@ async function claimLock() {
   if (lockState !== 'free') return;
   lockState = 'soft'; lockOwner = currentUser.email; lockTime = new Date().toISOString();
   iAmEditing = true;
-  // Snapshot for discard
   pendingMarkers = markers.map(m => ({
     type: m.type, label: m.label,
     lat: m.marker.getLatLng().lat, lng: m.marker.getLatLng().lng
@@ -559,7 +547,6 @@ async function discardChanges() {
   lockState = 'free'; lockOwner = null; lockTime = null;
   iAmEditing = false;
   clearIdleTimer();
-  // Restore snapshot
   clearMarkerLayer();
   pendingMarkers.forEach(m => placeMarker(m.type, [m.lat, m.lng], m.label, false));
   await saveMapData(currentMapPayload());
@@ -612,10 +599,8 @@ function resetIdleTimer() {
 }
 function clearIdleTimer() { if (idleTimer) { clearTimeout(idleTimer); idleTimer = null; } }
 
-// Reset idle on any map interaction
 map.on('click mousemove', () => { if (iAmEditing) resetIdleTimer(); });
 
-// Auto-release lock on tab close
 window.addEventListener('beforeunload', () => {
   if (iAmEditing && accessToken && driveFileId) {
     const payload = JSON.stringify(currentMapPayload({ state: 'free', owner: null, time: null }));
@@ -637,12 +622,11 @@ function startPolling() {
 // ── UI UPDATE ──
 function updateUI() {
   const badge = document.getElementById('lock-badge');
-  const isMyLock = lockOwner === (currentUser && currentUser.email);
-  const canEdit = currentUser && lockState === 'free';
+  const isMyLock    = lockOwner === (currentUser && currentUser.email);
+  const canEdit     = currentUser && lockState === 'free';
   const softByOther = lockState === 'soft' && !isMyLock;
-  const isHard = lockState === 'hard';
+  const isHard      = lockState === 'hard';
 
-  // Badge
   if (isHard) {
     badge.textContent = '🔒 FINALIZED by ' + (lockOwner || 'admin');
     badge.className = 'badge-hardlocked';
@@ -658,7 +642,6 @@ function updateUI() {
     badge.className = 'badge-free';
   }
 
-  // Buttons
   show('btn-edit',       currentUser && canEdit && !iAmEditing);
   show('btn-takeover',   currentUser && softByOther);
   show('btn-discard',    iAmEditing);
@@ -666,17 +649,14 @@ function updateUI() {
   show('btn-finalize',   isAdmin && !isHard && !iAmEditing);
   show('btn-unfinalize', isAdmin && isHard);
 
-  // Finalized banner
   const fb = document.getElementById('finalized-banner');
   isHard ? fb.classList.add('show') : fb.classList.remove('show');
 
-  // Sidebar symbol draggability
   document.querySelectorAll('.sym').forEach(el => {
     el.classList.toggle('disabled', !iAmEditing);
     el.setAttribute('draggable', iAmEditing ? 'true' : 'false');
   });
 
-  // Marker drag on map
   markers.forEach(m => {
     if (m.marker.dragging) {
       iAmEditing ? m.marker.dragging.enable() : m.marker.dragging.disable();
@@ -700,7 +680,7 @@ function enableEditing(on) {
 
 // ── MARKER MANAGEMENT ──
 function makeIcon(type) {
-  const isVeh = ['gen-trailer','supply-trailer','ambulance'].includes(type);
+  const isVeh = VEHICLE_TYPES.includes(type);
   const w = isVeh ? 54 : 38, h = isVeh ? 36 : 38;
   return L.divIcon({ html: SVG[type] || SVG['generic'], className: '', iconSize: [w,h], iconAnchor: [w/2,h/2], popupAnchor: [0,-h/2+4] });
 }
@@ -712,7 +692,6 @@ function placeMarker(type, latlng, label, openPopupAfter) {
   if (md.label !== LABEL_DEFAULTS[type]) attachTooltip(md);
   m.on('click', () => { if (iAmEditing) openMarkerPopup(md); });
   if (openPopupAfter) {
-    // For generic type or first placement, auto-open label popup
     if (type === 'generic' || openPopupAfter === 'force') openMarkerPopup(md);
   }
   return md;
@@ -805,7 +784,7 @@ mapEl.addEventListener('drop', e => {
   const rect = mapEl.getBoundingClientRect();
   const pt   = L.point(e.clientX - rect.left, e.clientY - rect.top);
   const ll   = map.containerPointToLatLng(pt);
-  const md   = placeMarker(draggingType, ll, null, draggingType === 'generic' ? 'force' : false);
+  placeMarker(draggingType, ll, null, draggingType === 'generic' ? 'force' : false);
   resetIdleTimer();
 });
 
@@ -829,7 +808,6 @@ window.cancelTouchPlace = function() {
   touchPlaceType = null;
   document.getElementById('touch-mode-banner').classList.remove('active');
   map.off('click');
-  // re-bind map click for popup (lost when we called map.once then cancelled)
 };
 
 // ── TOOLTIP STYLE ──
