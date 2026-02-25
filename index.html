@@ -410,6 +410,9 @@ let draggingType   = null;
 let touchPlaceType = null;
 let accessToken    = null;
 let driveLoaded    = false;  // true once we've successfully read from Drive
+// Unique ID for this browser session — used to distinguish our active lock
+// from a stale lock left by a previous session on the same account
+const SESSION_ID   = Math.random().toString(36).slice(2);
 
 // ── GOOGLE AUTH ──
 function signIn() {
@@ -473,18 +476,23 @@ async function loadFromDrive() {
 }
 
 function applyMapData(data) {
-  const incomingState = (data.lock && data.lock.state) || 'free';
-  const incomingOwner = (data.lock && data.lock.owner) || null;
-  const incomingTime  = (data.lock && data.lock.time)  || null;
+  const incomingState   = (data.lock && data.lock.state)   || 'free';
+  const incomingOwner   = (data.lock && data.lock.owner)   || null;
+  const incomingTime    = (data.lock && data.lock.time)    || null;
+  const incomingSession = (data.lock && data.lock.session) || null;
 
-  // Auto-clear a stale soft lock owned by the current user from a previous session.
-  // This prevents the map from being stuck locked when someone closed their tab mid-edit.
-  if (incomingState === 'soft' &&
-      currentUser &&
-      incomingOwner === currentUser.email &&
-      !iAmEditing) {
+  // Auto-clear a stale soft lock owned by this user BUT from a different session
+  // (i.e. they closed their tab without releasing). Do NOT clear if it's our own
+  // active session or another device actively editing on the same account.
+  const isOurActiveLock = iAmEditing && incomingSession === SESSION_ID;
+  const isStaleOwnLock  = incomingState === 'soft' &&
+                          currentUser &&
+                          incomingOwner === currentUser.email &&
+                          !isOurActiveLock &&
+                          incomingSession !== SESSION_ID;
+
+  if (isStaleOwnLock) {
     lockState = 'free'; lockOwner = null; lockTime = null;
-    // Write the cleared lock back, preserving all markers
     saveMapData({ version: 2, lock: { state: 'free', owner: null, time: null }, markers: data.markers || [] });
   } else {
     lockState = incomingState;
@@ -527,7 +535,7 @@ async function saveMapData(data) {
 function currentMapPayload(lockOverride) {
   return {
     version: 2,
-    lock: lockOverride || { state: lockState, owner: lockOwner, time: lockTime },
+    lock: lockOverride || { state: lockState, owner: lockOwner, time: lockTime, session: SESSION_ID },
     markers: markers.map(m => ({
       type: m.type, label: m.label,
       lat: m.marker.getLatLng().lat,
