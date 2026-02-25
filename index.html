@@ -559,6 +559,8 @@ async function saveAndRelease() {
   await saveMapData(currentMapPayload());
   enableEditing(false);
   updateUI();
+  // Reset poll timer so it doesn't fire immediately and overwrite with stale Drive data
+  startPolling();
 }
 
 async function discardChanges() {
