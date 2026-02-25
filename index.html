@@ -409,6 +409,7 @@ let idleTimer      = null;
 let draggingType   = null;
 let touchPlaceType = null;
 let accessToken    = null;
+let driveLoaded    = false;  // true once we've successfully read from Drive
 
 // ── GOOGLE AUTH ──
 function signIn() {
@@ -472,13 +473,30 @@ async function loadFromDrive() {
 }
 
 function applyMapData(data) {
-  lockState = (data.lock && data.lock.state) || 'free';
-  lockOwner = (data.lock && data.lock.owner) || null;
-  lockTime  = (data.lock && data.lock.time)  || null;
+  const incomingState = (data.lock && data.lock.state) || 'free';
+  const incomingOwner = (data.lock && data.lock.owner) || null;
+  const incomingTime  = (data.lock && data.lock.time)  || null;
+
+  // Auto-clear a stale soft lock owned by the current user from a previous session.
+  // This prevents the map from being stuck locked when someone closed their tab mid-edit.
+  if (incomingState === 'soft' &&
+      currentUser &&
+      incomingOwner === currentUser.email &&
+      !iAmEditing) {
+    lockState = 'free'; lockOwner = null; lockTime = null;
+    // Write the cleared lock back, preserving all markers
+    saveMapData({ version: 2, lock: { state: 'free', owner: null, time: null }, markers: data.markers || [] });
+  } else {
+    lockState = incomingState;
+    lockOwner = incomingOwner;
+    lockTime  = incomingTime;
+  }
+
   if (!iAmEditing) {
     clearMarkerLayer();
     (data.markers || []).forEach(m => placeMarker(m.type, [m.lat, m.lng], m.label, false));
   }
+  driveLoaded = true;
   updateUI();
 }
 
@@ -521,6 +539,7 @@ function currentMapPayload(lockOverride) {
 // ── LOCK MANAGEMENT ──
 async function claimLock() {
   if (lockState !== 'free') return;
+  if (!driveLoaded) { alert('Still loading map data from Drive — please wait a moment and try again.'); return; }
   lockState = 'soft'; lockOwner = currentUser.email; lockTime = new Date().toISOString();
   iAmEditing = true;
   pendingMarkers = markers.map(m => ({
