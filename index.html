@@ -648,7 +648,10 @@ function updateUI() {
   const softByOther = lockState === 'soft' && !isMyLock;
   const isHard      = lockState === 'hard';
 
-  if (isHard) {
+  if (!driveLoaded && currentUser) {
+    badge.textContent = '⏳ LOADING…';
+    badge.className = 'badge-softlocked';
+  } else if (isHard) {
     badge.textContent = '🔒 FINALIZED by ' + (lockOwner || 'admin');
     badge.className = 'badge-hardlocked';
   } else if (lockState === 'soft' && isMyLock) {
@@ -663,8 +666,8 @@ function updateUI() {
     badge.className = 'badge-free';
   }
 
-  show('btn-edit',       currentUser && canEdit && !iAmEditing);
-  show('btn-takeover',   currentUser && softByOther);
+  show('btn-edit',       currentUser && canEdit && !iAmEditing && driveLoaded);
+  show('btn-takeover',   currentUser && softByOther && driveLoaded);
   show('btn-discard',    iAmEditing);
   show('btn-done',       iAmEditing);
   show('btn-finalize',   isAdmin && !isHard && !iAmEditing);
