@@ -329,9 +329,13 @@
 // ══════════════════════════════════════════════
 const CONFIG = {
   CLIENT_ID: '437673542263-s2kl4cvmfeip7hf1tg69m3n4v54f1cu6.apps.googleusercontent.com',
+
+  // API key for anonymous (non-signed-in) map viewing.
+  // Create this in Google Cloud Console → Credentials → Create Credentials → API Key
+  // Then restrict it to: Drive API, HTTP referrers: pastoril.github.io
+  API_KEY: 'AIzaSyDH6XV2E2quusZ91rNjQG3Gw4XbI9_oKRo',
+
   FILENAME: 'rally-map-layout.json',
-  // Hardcoded Drive file ID — everyone accesses this exact file regardless of account.
-  // To find this: open the file in Drive and copy the ID from the URL between /d/ and /view
   FILE_ID: '1xhklSyZr_Sz20NG-LCyUGgkZIjdNdz6f',
   FOLDER_ID: null,
   ADMINS: [
@@ -917,53 +921,45 @@ ts.textContent = `.mtip { background: rgba(15,19,32,0.92)!important; border:1px 
 document.head.appendChild(ts);
 
 // ── INIT ──
-// First load map data anonymously (no sign-in needed to view)
-// using a public fetch if possible, then check if we're returning from OAuth
 (async () => {
-  // Load map markers anonymously via public Drive file read
-  // (works because the file is shared — no auth token needed for reading)
+  // Load markers anonymously on page open — no sign-in needed to view.
+  // Uses Drive API v3 alt=media with no auth for publicly shared files.
+  await anonLoad();
+
+  // Check if returning from Google OAuth redirect
+  const signedIn = await checkOAuthReturn();
+  if (!signedIn) updateUI();
+
+  // Single unified poll — works for both anonymous viewers and signed-in editors.
+  // Anonymous viewers use anonLoad(), signed-in editors use authenticated loadFromDrive().
+  setInterval(async () => {
+    if (iAmEditing) return; // never clobber an active edit session
+    if (accessToken) {
+      await loadFromDrive();
+    } else {
+      await anonLoad();
+    }
+  }, CONFIG.POLL_INTERVAL_SECONDS * 1000);
+})();
+
+async function anonLoad() {
   try {
-    const anonUrl = `https://drive.google.com/uc?export=download&id=${CONFIG.FILE_ID}`;
-    const r = await fetch(anonUrl);
+    // Drive API v3 public read — works for files shared as "Anyone with the link"
+    const url = `https://www.googleapis.com/drive/v3/files/${CONFIG.FILE_ID}?alt=media&key=${CONFIG.API_KEY}`;
+    const r = await fetch(url);
     if (r.ok) {
       const data = await r.json();
-      // Apply markers but don't touch lock state yet
       clearMarkerLayer();
       (data.markers || []).forEach(m => placeMarker(m.type, [m.lat, m.lng], m.label, false));
       lockState = (data.lock && data.lock.state) || 'free';
       lockOwner = (data.lock && data.lock.owner) || null;
       lockTime  = (data.lock && data.lock.time)  || null;
+      updateUI();
     }
   } catch(e) {
-    // Anonymous load failed — markers will load after sign-in
+    // Anonymous load failed silently — user can still sign in to edit
   }
-
-  // Check if returning from Google OAuth redirect
-  const signedIn = await checkOAuthReturn();
-
-  // If not signed in, still show the map in view-only mode
-  if (!signedIn) {
-    updateUI();
-    // Poll anonymously every 5s so viewers see live updates
-    setInterval(async () => {
-      if (!iAmEditing) {
-        try {
-          const anonUrl = `https://drive.google.com/uc?export=download&id=${CONFIG.FILE_ID}`;
-          const r = await fetch(anonUrl);
-          if (r.ok) {
-            const data = await r.json();
-            clearMarkerLayer();
-            (data.markers || []).forEach(m => placeMarker(m.type, [m.lat, m.lng], m.label, false));
-            lockState = (data.lock && data.lock.state) || 'free';
-            lockOwner = (data.lock && data.lock.owner) || null;
-            lockTime  = (data.lock && data.lock.time)  || null;
-            updateUI();
-          }
-        } catch(e) {}
-      }
-    }, CONFIG.POLL_INTERVAL_SECONDS * 1000);
-  }
-})();
+}
 </script>
 </body>
 </html>
