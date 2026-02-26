@@ -249,10 +249,11 @@
 
 <div id="header">
   <h1>📍 Rally Map — Montgomery Park</h1>
-  <span id="user-badge">Not signed in</span>
+  <span id="user-badge">Viewing (not signed in)</span>
   <span id="lock-badge" class="badge-free">● FREE</span>
   <div class="header-spacer"></div>
-  <button class="btn btn-signin"     id="btn-signin"    onclick="signIn()">Sign In</button>
+  <button class="btn btn-signin"     id="btn-signin"    onclick="signIn()">Sign In to Edit</button>
+  <button class="btn btn-done"       id="btn-signout"   onclick="signOut()" style="display:none">Sign Out</button>
   <button class="btn btn-edit"       id="btn-edit"      onclick="claimLock()" style="display:none">✏️ Edit</button>
   <button class="btn btn-takeover"   id="btn-takeover"  onclick="takeOver()" style="display:none">⚡ Take Over</button>
   <button class="btn btn-discard"    id="btn-discard"   onclick="discardChanges()" style="display:none">↩ Discard</button>
@@ -320,8 +321,6 @@
 
 <div id="drag-ghost"><svg id="ghost-svg" viewBox="0 0 64 64"></svg></div>
 
-<script src="https://accounts.google.com/gsi/client" async defer></script>
-<script src="https://apis.google.com/js/api.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
@@ -417,25 +416,76 @@ let driveLoaded    = false;  // true once we've successfully read from Drive
 // from a stale lock left by a previous session on the same account
 const SESSION_ID   = Math.random().toString(36).slice(2);
 
-// ── GOOGLE AUTH ──
+// ── OAUTH REDIRECT FLOW ──
+// Works in all browsers (Safari, Edge, Firefox) — no third-party cookies needed.
+// Sign-in briefly redirects to Google then returns with a token in the URL hash.
+const OAUTH_SCOPE = 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile';
+const REDIRECT_URI = window.location.origin + window.location.pathname;
+
 function signIn() {
   if (CONFIG.CLIENT_ID === 'YOUR_CLIENT_ID_HERE.apps.googleusercontent.com') {
-    alert('This map is not yet configured.\n\nThe admin needs to set the CLIENT_ID in the CONFIG section at the top of this file.\n\nSee the setup guide for instructions.');
+    alert('This map is not yet configured.\n\nThe admin needs to set the CLIENT_ID in the CONFIG section at the top of this file.');
     return;
   }
-  const client = google.accounts.oauth2.initTokenClient({
-    client_id: CONFIG.CLIENT_ID,
-    scope: 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile',
-    callback: async (resp) => {
-      if (resp.error) { alert('Sign-in failed: ' + resp.error); return; }
-      accessToken = resp.access_token;
-      await fetchUserInfo();
-      document.getElementById('btn-signin').style.display = 'none';
-      await initDrive();
-      startPolling();
-    }
+  // Save scroll/zoom state so we can restore it after redirect
+  const state = { zoom: map.getZoom(), lat: map.getCenter().lat, lng: map.getCenter().lng };
+  sessionStorage.setItem('mapState', JSON.stringify(state));
+
+  const params = new URLSearchParams({
+    client_id:     CONFIG.CLIENT_ID,
+    redirect_uri:  REDIRECT_URI,
+    response_type: 'token',
+    scope:         OAUTH_SCOPE,
+    include_granted_scopes: 'true',
+    state:         'signin'
   });
-  client.requestAccessToken();
+  window.location.href = 'https://accounts.google.com/o/oauth2/v2/auth?' + params.toString();
+}
+
+function signOut() {
+  accessToken = null;
+  currentUser = null;
+  isAdmin = false;
+  iAmEditing = false;
+  driveLoaded = false;
+  document.getElementById('btn-signin').style.display = '';
+  document.getElementById('btn-signout').style.display = 'none';
+  document.getElementById('user-badge').textContent = 'Viewing (not signed in)';
+  updateUI();
+}
+
+// Check for OAuth token in URL hash on page load (returning from Google redirect)
+async function checkOAuthReturn() {
+  const hash = window.location.hash.substring(1);
+  const params = new URLSearchParams(hash);
+  const token = params.get('access_token');
+  const error = params.get('error');
+
+  if (error) {
+    alert('Sign-in failed: ' + error + '\n\nMake sure your Google account has been added as a test user.');
+    // Clean up URL
+    history.replaceState(null, '', window.location.pathname);
+    return false;
+  }
+
+  if (token) {
+    accessToken = token;
+    // Clean up URL so token doesn't stay in browser history
+    history.replaceState(null, '', window.location.pathname);
+    // Restore map position if we saved it before redirect
+    try {
+      const saved = JSON.parse(sessionStorage.getItem('mapState') || '{}');
+      if (saved.zoom) map.setView([saved.lat, saved.lng], saved.zoom);
+      sessionStorage.removeItem('mapState');
+    } catch(e) {}
+    await fetchUserInfo();
+    document.getElementById('btn-signin').style.display = 'none';
+    document.getElementById('btn-signout').style.display = '';
+    await initDrive();
+    startPolling();
+    return true;
+  }
+  return false;
 }
 
 async function fetchUserInfo() {
@@ -867,7 +917,53 @@ ts.textContent = `.mtip { background: rgba(15,19,32,0.92)!important; border:1px 
 document.head.appendChild(ts);
 
 // ── INIT ──
-updateUI();
+// First load map data anonymously (no sign-in needed to view)
+// using a public fetch if possible, then check if we're returning from OAuth
+(async () => {
+  // Load map markers anonymously via public Drive file read
+  // (works because the file is shared — no auth token needed for reading)
+  try {
+    const anonUrl = `https://drive.google.com/uc?export=download&id=${CONFIG.FILE_ID}`;
+    const r = await fetch(anonUrl);
+    if (r.ok) {
+      const data = await r.json();
+      // Apply markers but don't touch lock state yet
+      clearMarkerLayer();
+      (data.markers || []).forEach(m => placeMarker(m.type, [m.lat, m.lng], m.label, false));
+      lockState = (data.lock && data.lock.state) || 'free';
+      lockOwner = (data.lock && data.lock.owner) || null;
+      lockTime  = (data.lock && data.lock.time)  || null;
+    }
+  } catch(e) {
+    // Anonymous load failed — markers will load after sign-in
+  }
+
+  // Check if returning from Google OAuth redirect
+  const signedIn = await checkOAuthReturn();
+
+  // If not signed in, still show the map in view-only mode
+  if (!signedIn) {
+    updateUI();
+    // Poll anonymously every 5s so viewers see live updates
+    setInterval(async () => {
+      if (!iAmEditing) {
+        try {
+          const anonUrl = `https://drive.google.com/uc?export=download&id=${CONFIG.FILE_ID}`;
+          const r = await fetch(anonUrl);
+          if (r.ok) {
+            const data = await r.json();
+            clearMarkerLayer();
+            (data.markers || []).forEach(m => placeMarker(m.type, [m.lat, m.lng], m.label, false));
+            lockState = (data.lock && data.lock.state) || 'free';
+            lockOwner = (data.lock && data.lock.owner) || null;
+            lockTime  = (data.lock && data.lock.time)  || null;
+            updateUI();
+          }
+        } catch(e) {}
+      }
+    }, CONFIG.POLL_INTERVAL_SECONDS * 1000);
+  }
+})();
 </script>
 </body>
 </html>
